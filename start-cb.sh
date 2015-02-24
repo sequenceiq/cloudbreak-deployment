@@ -167,6 +167,7 @@ start_consul() {
     docker run -d \
         -h node1 \
         --name=consul \
+        -e SERVICE_IGNORE=true \
         -p ${BRIDGE_IP}:53:53/udp \
         -p ${BRIDGE_IP}:8400:8400 \
         -p ${BRIDGE_IP}:8500:8500 \
