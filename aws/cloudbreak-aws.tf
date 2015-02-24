@@ -139,11 +139,6 @@ resource "aws_instance" "cb-deploy" {
     }
 
     provisioner "file" {
-        source = "../uaa.tmp.yml"
-        destination = "/usr/local/cloudbreak/uaa.tmp.yml"
-    }
-
-    provisioner "file" {
         source = "../konzul-cb.sh"
         destination = "/usr/local/cloudbreak/start_cb.sh"
     }

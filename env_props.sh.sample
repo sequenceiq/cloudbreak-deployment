@@ -19,3 +19,9 @@ export CB_SMTP_SENDER_FROM=
 # AWS related (optional) settings - not setting them causes AWS related operations to fail
 export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_KEY=
+
+# Default user
+export UAA_DEFAULT_USER_EMAIL=
+export UAA_DEFAULT_USER_PW=
+export UAA_DEFAULT_USER_FIRSTNAME=
+export UAA_DEFAULT_USER_LASTNAME=
