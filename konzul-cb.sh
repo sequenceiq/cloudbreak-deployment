@@ -64,7 +64,6 @@ set_env_props() {
 
 
     if [ ! -f env_props.sh ] ;then
-      cp env_props.sh.sample env_props.sh
       cat <<EOF
 =================================================
 = Please fill missing variables in:env_props.sh =
