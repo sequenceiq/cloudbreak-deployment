@@ -272,7 +272,7 @@ start_cloudbreak() {
     debug $desc
     wait_for_service cbdb
     debug "cloudbreak db: $(dhp cbdb)"
-    export CB_HOST_ADDR=$HOST_ADDRESS
+    export CB_HOST_ADDR=$PUBLIC_HOST_ADDRESS
     cb_envs_to_docker_options
 
     docker run -d \
