@@ -191,13 +191,12 @@ wait_for_service() {
     : ${service:? required}
 
     debug "wait for $service gets registered in consul ..."
-    local watchres=$( docker run -it --rm \
+    ( docker run -it --rm \
         --net container:consul \
         --entrypoint /bin/consul \
         sequenceiq/consul:v0.5.0 \
           watch -type=service -service=$service -passingonly=true bash -c 'cat|grep "\[\]" '
-    )
-    debug "[wait] watch result: $watchres"
+    ) &> /dev/null
     debug "$service is registered: $(dhp $service)"
 }
 
