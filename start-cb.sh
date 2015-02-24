@@ -5,6 +5,16 @@
 : ${DEBUG:=1}
 : ${HOST_ADDRESS:=http://localhost}
 
+: ${DOCKER_TAG_ALPINE:=3.1}
+: ${DOCKER_TAG_CONSUL:=v0.5.0}
+: ${DOCKER_TAG_REGISTRATOR:=v5}
+: ${DOCKER_TAG_POSTGRES:=9.4.0}
+: ${DOCKER_TAG_UAA:=1.8.1-v1}
+: ${DOCKER_TAG_CBSHELL:=0.2.38}
+: ${DOCKER_TAG_CLOUDBREAK:=0.3.65}
+: ${DOCKER_TAG_ULUWATU:=0.1.400}
+: ${DOCKER_TAG_SULTANS:=0.1.61}
+: ${DOCKER_TAG_PERISCOPE:=0.1.31}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -171,7 +181,7 @@ start_consul() {
         -p ${BRIDGE_IP}:8400:8400 \
         -p ${BRIDGE_IP}:8500:8500 \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        sequenceiq/consul:v0.5.0 -server -bootstrap -advertise ${BRIDGE_IP}
+        sequenceiq/consul:$DOCKER_TAG_CONSUL -server -bootstrap -advertise ${BRIDGE_IP}
 }
 
 start_registrator() {
@@ -181,7 +191,7 @@ start_registrator() {
     docker run -d \
       --name=registrator \
       -v /var/run/docker.sock:/tmp/docker.sock \
-      gliderlabs/registrator:v5 consul://${BRIDGE_IP}:8500
+      gliderlabs/registrator:$DOCKER_TAG_REGISTRATOR consul://${BRIDGE_IP}:8500
 }
 
 wait_for_service() {
@@ -192,7 +202,7 @@ wait_for_service() {
     ( docker run -it --rm \
         --net container:consul \
         --entrypoint /bin/consul \
-        sequenceiq/consul:v0.5.0 \
+        sequenceiq/consul:$DOCKER_TAG_CONSUL \
           watch -type=service -service=$service bash -c 'cat|grep "\[\]" '
     ) &> /dev/null
 }
@@ -204,7 +214,7 @@ start_cloudbreak_db() {
       --name=cbdb \
       -e "SERVICE_NAME=cbdb" \
       -v /var/lib/cloudbreak/cbdb:/var/lib/postgresql/data \
-      postgres:9.4.0
+      postgres:$DOCKER_TAG_POSTGRES
 
     wait_for_service cbdb
     sleep 20
@@ -218,7 +228,7 @@ start_uaa() {
       --name="uaadb" \
       -e "SERVICE_NAME=uaadb" \
       -v /var/lib/cloudbreak/uaadb:/var/lib/postgresql/data \
-      postgres:9.4.0
+      postgres:$DOCKER_TAG_POSTGRES
 
     debug "waits for uaadb get registered in consul"
     wait_for_service uaadb
@@ -232,7 +242,7 @@ start_uaa() {
       -v $PWD/uaa.yml:/uaa/uaa.yml \
       -v /var/lib/uaa/uaadb:/var/lib/postgresql/data \
       -p 8089:8080 \
-      sequenceiq/uaa:1.8.1-v1
+      sequenceiq/uaa:$DOCKER_TAG_UAA
 
     local uaaaddress=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" uaa):8080/info
     debug $uaaaddress
@@ -248,7 +258,7 @@ start_cloudbreak_shell() {
         -e SEQUENCEIQ_PASSWORD=seqadmin \
         -e IDENTITY_ADDRESS=http://$(dhp uaa) \
         -e CLOUDBREAK_ADDRESS=http://$(dhp cloudbreak) \
-        sequenceiq/cb-shell:0.2.38
+        sequenceiq/cb-shell:$DOCKER_TAG_CBSHELL
 }
 
 cb_envs_to_docker_options() {
@@ -282,7 +292,7 @@ start_cloudbreak() {
         -e CB_CLIENT_SECRET=$UAA_CLOUDBREAK_SECRET \
         $DOCKER_CB_ENVS \
         -p 8080:8080 \
-        sequenceiq/cloudbreak:0.3.65 bash
+        sequenceiq/cloudbreak:$DOCKER_TAG_CLOUDBREAK bash
 
     local cbaddress=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" cloudbreak):8080/info
     debug $cbaddress
@@ -302,7 +312,7 @@ start_uluwatu() {
     -e ULU_HOST_ADDRESS=$HOST_ADDRESS:3000 \
     -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
     -e ULU_PERISCOPE_ADDRESS=http://$(dhp periscope)/ \
-    -p 3000:3000 sequenceiq/uluwatu:0.1.400
+    -p 3000:3000 sequenceiq/uluwatu:$DOCKER_TAG_ULUWATU
 }
 
 start_sultans() {
@@ -319,7 +329,7 @@ start_sultans() {
     -e SL_SMTP_SENDER_FROM=$CB_SMTP_SENDER_FROM \
     -e SL_CB_ADDRESS=$HOST_ADDRESS:3000 \
     -e SL_ADDRESS=$HOST_ADDRESS:3001 \
-    -p 3001:3000 sequenceiq/sultans:0.1.61
+    -p 3001:3000 sequenceiq/sultans:$DOCKER_TAG_SULTANS
 }
 
 start_periscope_db() {
@@ -329,7 +339,7 @@ start_periscope_db() {
       --name=periscopedb \
       -e "SERVICE_NAME=periscopedb" \
       -v /var/lib/periscope/periscopedb:/var/lib/postgresql/data \
-      postgres:9.4.0
+      postgres:$DOCKER_TAG_POSTGRES
 
     debug "waits for periscopedb get registered in consul"
     wait_for_service periscopedb
@@ -362,7 +372,7 @@ start_periscope() {
     -e ENDPOINTS_BEANS_ENABLED=false \
     -e ENDPOINTS_ENV_ENABLED=false \
     -p 8085:8080 \
-    sequenceiq/periscope:0.1.31
+    sequenceiq/periscope:$DOCKER_TAG_PERISCOPE
 }
 
 token() {
