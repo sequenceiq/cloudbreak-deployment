@@ -133,6 +133,21 @@ resource "aws_instance" "cb-deploy" {
         destination = "/usr/local/cloudbreak/env_props.sh"
     }
 
+    provisioner "file" {
+        source = "../check_env.sh"
+        destination = "/usr/local/cloudbreak/check_env.sh"
+    }
+
+    provisioner "file" {
+        source = "../uaa.tmp.yml"
+        destination = "/usr/local/cloudbreak/uaa.tmp.yml"
+    }
+
+    provisioner "file" {
+        source = "../konzul-cb.sh"
+        destination = "/usr/local/cloudbreak/start_cb.sh"
+    }
+
     provisioner "remote-exec" {
         script = "./deploy_ec2.sh"
     }
