@@ -9,7 +9,7 @@ debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
 
-BRIDGE_IP=$(docker run --rm gliderlabs/alpine:3.1 ip ro | grep default | cut -d" " -f 3)
+BRIDGE_IP=$(boot2docker ip || (docker run --rm gliderlabs/alpine:3.1 ip ro | grep default | cut -d" " -f 3))
 
 con() {
   declare path="$1"
