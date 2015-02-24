@@ -211,7 +211,6 @@ start_cloudbreak_db() {
       postgres:9.4.0
 
     wait_for_service cbdb
-    sleep 20
 }
 
 start_uaa() {
@@ -224,10 +223,7 @@ start_uaa() {
       -v /var/lib/cloudbreak/uaadb:/var/lib/postgresql/data \
       postgres:9.4.0
 
-    debug "waits for uaadb get registered in consul"
     wait_for_service uaadb
-    sleep 20
-    debug "uaa db: $(dhp uaadb) "
 
     docker run -d -P \
       --name="uaa" \
@@ -239,9 +235,7 @@ start_uaa() {
       -p 8089:8080 \
       sequenceiq/uaa:1.8.1-v1
 
-    local uaaaddress=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" uaa):8080/info
-    debug $uaaaddress
-    checkHealthOnUrl $uaaaddress
+    wait_for_service uaa
 }
 
 start_cloudbreak_shell() {
@@ -265,26 +259,12 @@ cb_envs_to_docker_options() {
   done
 }
 
-wait_for_service() {
-    declare desc="waits for a service entry to appear in consul"
-    declare service=$1
-    : ${service:? required}
-
-    ( docker run -it --rm \
-        --net container:consul \
-        --entrypoint /bin/consul \
-        sequenceiq/consul:v0.5.0 \
-          watch -type=service -service=$service bash -c 'cat|grep "\[\]" '
-    ) &> /dev/null
-}
-
 start_cloudbreak() {
     declare desc="starts cloudbreak component"
 
     debug $desc
     wait_for_service cbdb
-    debug "cloudbreak db: $(dhp cbdb)"
-    export CB_HOST_ADDR=$CLOUDBREAK_PUBLIC_HOST_ADDRESS
+    export CB_HOST_ADDR=http://$(dh consul):8080
     cb_envs_to_docker_options
 
     docker run -d \
@@ -302,9 +282,7 @@ start_cloudbreak() {
         -p 8080:8080 \
         sequenceiq/cloudbreak:0.3.65 bash
 
-    local cbaddress=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" cloudbreak):8080/info
-    debug $cbaddress
-    checkHealthOnUrl $cbaddress
+    wait_for_service cloudbreak
 }
 
 start_uluwatu() {
@@ -403,39 +381,6 @@ bridge_osx() {
     BRIDGE_IP=$(docker run --rm mini/base ip ro | grep default | cut -d" " -f 3)
     sudo networksetup -setdnsservers Wi-Fi 192.168.1.1 $BRIDGE_IP 8.8.8.8
     sudo networksetup -setsearchdomains Wi-Fi service.consul node.consul
-}
-
-checkHealthOnUrl() {
-  declare url=$1
-  declare maxAttempts=10
-  declare pollTimeout=30
-
-  cat <<EOF
-========================================================
-= check service availabilty =
-= by checking the health url:
-=   $url
-=
-= maxAttempts=$maxAttempts
-========================================================
-EOF
-
-  for (( i=1; i<=$maxAttempts; i++ ))
-  do
-      echo "GET $url. Attempt #$i"
-      code=`curl -sL -w "%{http_code}\\n" "$url" -o /dev/null`
-      echo "Found code $code"
-      if [ "x$code" = "x200" ]
-      then
-           echo "Service on '"$url"' is available!"
-           break
-      elif [ $i -eq $maxAttempts ]
-      then
-           echo "Service on '"$url"' not started in time."
-           exit 1
-      fi
-      sleep $pollTimeout
-  done
 }
 
 main() {
