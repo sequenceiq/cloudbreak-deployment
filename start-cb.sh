@@ -284,7 +284,6 @@ start_cloudbreak() {
 
     docker run -d \
         --name=cloudbreak \
-        -e "SERVICE_NAME=cloudbreak" \
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_KEY=$AWS_SECRET_KEY \
         -e SERVICE_NAME=cloudbreak \
