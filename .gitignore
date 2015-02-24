@@ -1,6 +1,5 @@
 */terraform.tfstate
 */terraform.tfstate.backup
-*/terraform.tfvars
 uaa.yml
 env_props.sh
 uaa_client_details
