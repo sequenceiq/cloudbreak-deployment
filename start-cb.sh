@@ -56,7 +56,8 @@ set_env_props() {
     export PERISCOPE_DB_HBM2DDL_STRATEGY="create"
 
 
-    if [ ! -f env_props.sh ] ;then
+    echo $(dirname $BASH_SOURCE)/env_props.sh
+    if [ ! -f $(dirname $BASH_SOURCE)/env_props.sh ] ;then
       cat <<EOF
 =================================================
 = Please fill missing variables in:env_props.sh =
@@ -68,8 +69,8 @@ EOF
 }
 
 check_env_props() {
-    source env_props.sh
-    source check_env.sh
+    source $(dirname $BASH_SOURCE)/env_props.sh
+    source $(dirname $BASH_SOURCE)/check_env.sh
     if [ $? -ne 0 ]; then
       exit 1;
     fi

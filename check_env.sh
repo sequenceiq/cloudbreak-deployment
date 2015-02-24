@@ -11,6 +11,12 @@
 : ${AWS_ACCESS_KEY_ID:?"Please set the AWS access key. Check the following entry in the env_props.sh file:AWS_ACCESS_KEY_ID="}
 : ${AWS_SECRET_KEY:?"Please set the AWS secret. Check the following entry in the env_props.sh file: AWS_SECRET_KEY="}
 
+# Default user
+: ${UAA_DEFAULT_USER_EMAIL:?"Please set the email address of the default user that will be able to login to Cloudbreak after the deployment: UAA_DEFAULT_USER_EMAIL="}
+: ${UAA_DEFAULT_USER_PW:?"Please set the password of the default user that will be able to login to Cloudbreak after the deployment: UAA_DEFAULT_USER_PW="}
+: ${UAA_DEFAULT_USER_FIRSTNAME:?"Please set the first name of the default user that will be able to login to Cloudbreak after the deployment: UAA_DEFAULT_USER_FIRSTNAME="}
+: ${UAA_DEFAULT_USER_LASTNAME:?"Please set the last name of the default user that will be able to login to Cloudbreak after the deployment: UAA_DEFAULT_USER_LASTNAME="}
+
 echo Starting cloudbreak with the following settings:
 
 for p in "${!CB_@}"; do
