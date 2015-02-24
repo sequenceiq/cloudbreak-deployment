@@ -71,8 +71,8 @@ resource "google_compute_instance" "cb-deploy" {
     }
 
     provisioner "file" {
-        source = "konzul-cb.sh"
-        destination = "/usr/local/cloudbreak/konzul-cb.sh"
+        source = "start-cb.sh"
+        destination = "/usr/local/cloudbreak/start-cb.sh"
     }
 }
 

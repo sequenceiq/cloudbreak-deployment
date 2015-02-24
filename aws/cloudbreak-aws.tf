@@ -139,7 +139,7 @@ resource "aws_instance" "cb-deploy" {
     }
 
     provisioner "file" {
-        source = "../konzul-cb.sh"
+        source = "../start-cb.sh"
         destination = "/usr/local/cloudbreak/start_cb.sh"
     }
 
