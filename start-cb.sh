@@ -260,19 +260,6 @@ cb_envs_to_docker_options() {
   done
 }
 
-wait_for_service() {
-    declare desc="waits for a service entry to appear in consul"
-    declare service=$1
-    : ${service:? required}
-
-    ( docker run -it --rm \
-        --net container:consul \
-        --entrypoint /bin/consul \
-        sequenceiq/consul:v0.5.0 \
-          watch -type=service -service=$service bash -c 'cat|grep "\[\]" '
-    ) &> /dev/null
-}
-
 start_cloudbreak() {
     declare desc="starts cloudbreak component"
 
