@@ -200,12 +200,14 @@ wait_for_service() {
     declare service=$1
     : ${service:? required}
 
+    debug "wait for $service gets registered in consul ..."
     ( docker run -it --rm \
         --net container:consul \
         --entrypoint /bin/consul \
         sequenceiq/consul:$DOCKER_TAG_CONSUL \
-          watch -type=service -service=$service bash -c 'cat|grep "\[\]" '
+          watch -type=service -service=$service -passingonly=true bash -c 'cat|grep "\[\]" '
     ) &> /dev/null
+    debug "$service is registered: $(dhp $service)"
 }
 
 start_cloudbreak_db() {
@@ -239,6 +241,7 @@ start_uaa() {
     docker run -d -P \
       --name="uaa" \
       -e "SERVICE_NAME=uaa" \
+      -e SERVICE_CHECK_HTTP=/login \
       -e IDENTITY_DB_URL=$(dhp uaadb) \
       -v $PWD/uaa.yml:/uaa/uaa.yml \
       -v /var/lib/uaa/uaadb:/var/lib/postgresql/data \
@@ -285,6 +288,7 @@ start_cloudbreak() {
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_KEY=$AWS_SECRET_KEY \
         -e SERVICE_NAME=cloudbreak \
+        -e SERVICE_CHECK_HTTP=/info \
         -e CB_IDENTITY_SERVER_URL=http://$(dhp uaa) \
         -e CB_DB_PORT_5432_TCP_ADDR=$(dh cbdb) \
         -e CB_DB_PORT_5432_TCP_PORT=$(dp cbdb) \
@@ -303,6 +307,7 @@ start_uluwatu() {
     docker run -d --name uluwatu \
     -e ULU_PRODUCTION=false \
     -e SERVICE_NAME=uluwatu \
+    -e SERVICE_CHECK_HTTP=/ \
     -e ULU_CLOUDBREAK_ADDRESS=http://$(dhp cloudbreak) \
     -e ULU_OAUTH_REDIRECT_URI=$HOST_ADDRESS:3000/authorize \
     -e ULU_IDENTITY_ADDRESS=http://$(dhp uaa)/ \
@@ -320,6 +325,7 @@ start_sultans() {
     -e SL_CLIENT_ID=$UAA_SULTANS_ID \
     -e SL_CLIENT_SECRET=$UAA_SULTANS_SECRET \
     -e SERVICE_NAME=sultans \
+    -e SERVICE_CHECK_HTTP=/ \
     -e SL_PORT=3000 \
     -e SL_UAA_ADDRESS=http://$(dhp uaa) \
     -e SL_SMTP_SENDER_HOST=$CB_SMTP_SENDER_HOST \
@@ -352,6 +358,7 @@ start_periscope() {
     -e PERISCOPE_DB_HBM2DDL_STRATEGY=$PERISCOPE_DB_HBM2DDL_STRATEGY \
     -e PERISCOPE_DB_TCP_PORT=$(dp periscopedb) \
     -e SERVICE_NAME=periscope \
+    -e SERVICE_CHECK_HTTP=/info \
     -e PERISCOPE_DB_TCP_ADDR=$(dh periscopedb) \
     -e PERISCOPE_SMTP_HOST=$CB_SMTP_SENDER_HOST \
     -e PERISCOPE_SMTP_USERNAME=$CB_SMTP_SENDER_USERNAME \
