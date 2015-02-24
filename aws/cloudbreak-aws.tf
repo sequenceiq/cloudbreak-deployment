@@ -30,13 +30,13 @@ variable aws_security_cidr {
 
 variable aws_ami {
     default = {
-        eu-west-1 = "ami-ed63f49a"
-        us-east-1 = "ami-1cf4a774"
-        us-west-1 = "ami-f7dc39b3"
-        us-west-2 = "ami-a1476691"
-        ap-northeast-1 = "ami-f16c8ef1"
-        ap-southeast-1 = "ami-647c4b36"
-        ap-southeast-2 = "ami-d193e5eb"
+        eu-west-1 = "ami-6d29be1a"
+        us-east-1 = "ami-dc94c6b4"
+        us-west-1 = "ami-6d29be1a"
+        us-west-2 = "ami-793b1a49"
+        ap-northeast-1 = "ami-3db5583d"
+        ap-southeast-1 = "ami-0a576058"
+        ap-southeast-2 = "ami-8780f6bd"
     }
     description = "AMI to launch the instance from"
 }
