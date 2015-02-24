@@ -223,10 +223,9 @@ start_uluwatu() {
     -e ULU_OAUTH_CLIENT_ID=uluwatu \
     -e ULU_OAUTH_CLIENT_SECRET=1AABF87E-EA02-414D-A7C3-72B66D1D8392 \
     -e ULU_HOST_ADDRESS=$HOST_ADDRESS:3000 \
-    -e ULU_ZIP=v0.1.398 \
     -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
     -e ULU_PERISCOPE_ADDRESS=http://$(dhp periscope)/ \
-    -p 3000:3000 sequenceiq/uluwatu
+    -p 3000:3000 sequenceiq/uluwatu:0.1.400
 }
 
 start_sultans() {
@@ -243,8 +242,7 @@ start_sultans() {
     -e SL_SMTP_SENDER_FROM=$CB_SMTP_SENDER_FROM \
     -e SL_CB_ADDRESS=$HOST_ADDRESS:3000 \
     -e SL_ADDRESS=$HOST_ADDRESS:3001 \
-    -e SL_ZIP=master \
-    -p 3001:3000 sequenceiq/sultans:latest
+    -p 3001:3000 sequenceiq/sultans:0.1.61
 }
 
 start_periscope_db() {
@@ -286,7 +284,7 @@ start_periscope() {
     -e ENDPOINTS_BEANS_ENABLED=false \
     -e ENDPOINTS_ENV_ENABLED=false \
     -p 8085:8080 \
-    sequenceiq/periscope:latest
+    sequenceiq/periscope:0.1.31
 }
 
 token() {
