@@ -6,7 +6,7 @@
 : ${HOST_ADDRESS:=http://localhost}
 
 : ${DOCKER_TAG_ALPINE:=3.1}
-: ${DOCKER_TAG_CONSUL:=v0.5.0}
+: ${DOCKER_TAG_CONSUL:=v0.5.0-v3}
 : ${DOCKER_TAG_REGISTRATOR:=v5}
 : ${DOCKER_TAG_POSTGRES:=9.4.0}
 : ${DOCKER_TAG_UAA:=1.8.1-v1}
@@ -216,6 +216,7 @@ start_cloudbreak_db() {
     docker run -d -P \
       --name=cbdb \
       -e "SERVICE_NAME=cbdb" \
+      -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
       -v /var/lib/cloudbreak/cbdb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
@@ -229,6 +230,7 @@ start_uaa() {
     docker run -d -P \
       --name="uaadb" \
       -e "SERVICE_NAME=uaadb" \
+      -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
       -v /var/lib/cloudbreak/uaadb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
@@ -335,6 +337,7 @@ start_periscope_db() {
     docker run -d -P \
       --name=periscopedb \
       -e "SERVICE_NAME=periscopedb" \
+      -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
       -v /var/lib/periscope/periscopedb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
