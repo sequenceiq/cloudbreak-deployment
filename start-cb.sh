@@ -3,7 +3,7 @@
 [[ "$TRACE" ]] && set -x
 
 : ${DEBUG:=1}
-: ${HOST_ADDRESS:=http://localhost}
+: ${HOST_ADDRESS:=localhost}
 
 : ${DOCKER_TAG_ALPINE:=3.1}
 : ${DOCKER_TAG_CONSUL:=v0.5.0}
@@ -304,12 +304,12 @@ start_uluwatu() {
     -e ULU_PRODUCTION=false \
     -e SERVICE_NAME=uluwatu \
     -e ULU_CLOUDBREAK_ADDRESS=http://$(dhp cloudbreak) \
-    -e ULU_OAUTH_REDIRECT_URI=$HOST_ADDRESS:3000/authorize \
+    -e ULU_OAUTH_REDIRECT_URI=http://$HOST_ADDRESS:3000/authorize \
     -e ULU_IDENTITY_ADDRESS=http://$(dhp uaa)/ \
-    -e ULU_SULTANS_ADDRESS=$HOST_ADDRESS:3001 \
+    -e ULU_SULTANS_ADDRESS=http://$HOST_ADDRESS:3001 \
     -e ULU_OAUTH_CLIENT_ID=$UAA_ULUWATU_ID \
     -e ULU_OAUTH_CLIENT_SECRET=$UAA_ULUWATU_SECRET \
-    -e ULU_HOST_ADDRESS=$HOST_ADDRESS:3000 \
+    -e ULU_HOST_ADDRESS=http://$HOST_ADDRESS:3000 \
     -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
     -e ULU_PERISCOPE_ADDRESS=http://$(dhp periscope)/ \
     -p 3000:3000 sequenceiq/uluwatu:$DOCKER_TAG_ULUWATU
@@ -327,8 +327,8 @@ start_sultans() {
     -e SL_SMTP_SENDER_USERNAME=$CB_SMTP_SENDER_USERNAME \
     -e SL_SMTP_SENDER_PASSWORD=$CB_SMTP_SENDER_PASSWORD \
     -e SL_SMTP_SENDER_FROM=$CB_SMTP_SENDER_FROM \
-    -e SL_CB_ADDRESS=$HOST_ADDRESS:3000 \
-    -e SL_ADDRESS=$HOST_ADDRESS:3001 \
+    -e SL_CB_ADDRESS=http://$HOST_ADDRESS:3000 \
+    -e SL_ADDRESS=http://$HOST_ADDRESS:3001 \
     -p 3001:3000 sequenceiq/sultans:$DOCKER_TAG_SULTANS
 }
 
