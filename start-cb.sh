@@ -6,7 +6,7 @@
 : ${HOST_ADDRESS:=http://localhost}
 
 : ${DOCKER_TAG_ALPINE:=3.1}
-: ${DOCKER_TAG_CONSUL:=v0.5.0}
+: ${DOCKER_TAG_CONSUL:=v0.5.0-v3}
 : ${DOCKER_TAG_REGISTRATOR:=v5}
 : ${DOCKER_TAG_POSTGRES:=9.4.0}
 : ${DOCKER_TAG_UAA:=1.8.1-v1}
@@ -19,13 +19,13 @@ debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
 
-BRIDGE_IP=$(docker run --rm gliderlabs/alpine:3.1 ip ro | grep default | cut -d" " -f 3)
+BRIDGE_IP=$(boot2docker ip || (docker run --rm gliderlabs/alpine:3.1 ip ro | grep default | cut -d" " -f 3))
 
 con() {
   declare path="$1"
   shift
-  local consul_ip=$(dig @${BRIDGE_IP} +short consul-8500.service.consul)
-  curl ${consul_ip}:8500/v1/${path} "$@"
+  local consul_ip=$(dig @${BRIDGE_IP} +short consul.service.consul)
+  curl -s ${consul_ip}:8500/v1/${path} "$@"
 }
 
 serv(){
@@ -177,6 +177,7 @@ start_consul() {
     docker run -d \
         -h node1 \
         --name=consul \
+        -e SERVICE_IGNORE=true \
         -p ${BRIDGE_IP}:53:53/udp \
         -p ${BRIDGE_IP}:8400:8400 \
         -p ${BRIDGE_IP}:8500:8500 \
@@ -199,12 +200,14 @@ wait_for_service() {
     declare service=$1
     : ${service:? required}
 
+    debug "wait for $service gets registered in consul ..."
     ( docker run -it --rm \
         --net container:consul \
         --entrypoint /bin/consul \
         sequenceiq/consul:$DOCKER_TAG_CONSUL \
-          watch -type=service -service=$service bash -c 'cat|grep "\[\]" '
+          watch -type=service -service=$service -passingonly=true bash -c 'cat|grep "\[\]" '
     ) &> /dev/null
+    debug "$service is registered: $(dhp $service)"
 }
 
 start_cloudbreak_db() {
@@ -213,11 +216,11 @@ start_cloudbreak_db() {
     docker run -d -P \
       --name=cbdb \
       -e "SERVICE_NAME=cbdb" \
+      -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
       -v /var/lib/cloudbreak/cbdb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
     wait_for_service cbdb
-    sleep 20
 }
 
 start_uaa() {
@@ -227,26 +230,23 @@ start_uaa() {
     docker run -d -P \
       --name="uaadb" \
       -e "SERVICE_NAME=uaadb" \
+      -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
       -v /var/lib/cloudbreak/uaadb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
-    debug "waits for uaadb get registered in consul"
     wait_for_service uaadb
-    sleep 20
-    debug "uaa db: $(dhp uaadb) "
 
     docker run -d -P \
       --name="uaa" \
       -e "SERVICE_NAME=uaa" \
+      -e SERVICE_CHECK_HTTP=/login \
       -e IDENTITY_DB_URL=$(dhp uaadb) \
       -v $PWD/uaa.yml:/uaa/uaa.yml \
       -v /var/lib/uaa/uaadb:/var/lib/postgresql/data \
       -p 8089:8080 \
       sequenceiq/uaa:$DOCKER_TAG_UAA
 
-    local uaaaddress=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" uaa):8080/info
-    debug $uaaaddress
-    checkHealthOnUrl $uaaaddress
+    wait_for_service uaa
 }
 
 start_cloudbreak_shell() {
@@ -275,16 +275,15 @@ start_cloudbreak() {
 
     debug $desc
     wait_for_service cbdb
-    debug "cloudbreak db: $(dhp cbdb)"
-    export CB_HOST_ADDR=$CLOUDBREAK_PUBLIC_HOST_ADDRESS
+    export CB_HOST_ADDR=${CLOUDBREAK_PUBLIC_HOST_ADDRESS:=http://$(dh consul):8080}
     cb_envs_to_docker_options
 
     docker run -d \
         --name=cloudbreak \
-        -e "SERVICE_NAME=cloudbreak" \
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_KEY=$AWS_SECRET_KEY \
         -e SERVICE_NAME=cloudbreak \
+        -e SERVICE_CHECK_HTTP=/info \
         -e CB_IDENTITY_SERVER_URL=http://$(dhp uaa) \
         -e CB_DB_PORT_5432_TCP_ADDR=$(dh cbdb) \
         -e CB_DB_PORT_5432_TCP_PORT=$(dp cbdb) \
@@ -294,15 +293,14 @@ start_cloudbreak() {
         -p 8080:8080 \
         sequenceiq/cloudbreak:$DOCKER_TAG_CLOUDBREAK bash
 
-    local cbaddress=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" cloudbreak):8080/info
-    debug $cbaddress
-    checkHealthOnUrl $cbaddress
+    wait_for_service cloudbreak
 }
 
 start_uluwatu() {
     docker run -d --name uluwatu \
     -e ULU_PRODUCTION=false \
     -e SERVICE_NAME=uluwatu \
+    -e SERVICE_CHECK_HTTP=/ \
     -e ULU_CLOUDBREAK_ADDRESS=http://$(dhp cloudbreak) \
     -e ULU_OAUTH_REDIRECT_URI=$HOST_ADDRESS:3000/authorize \
     -e ULU_IDENTITY_ADDRESS=http://$(dhp uaa)/ \
@@ -320,6 +318,7 @@ start_sultans() {
     -e SL_CLIENT_ID=$UAA_SULTANS_ID \
     -e SL_CLIENT_SECRET=$UAA_SULTANS_SECRET \
     -e SERVICE_NAME=sultans \
+    -e SERVICE_CHECK_HTTP=/ \
     -e SL_PORT=3000 \
     -e SL_UAA_ADDRESS=http://$(dhp uaa) \
     -e SL_SMTP_SENDER_HOST=$CB_SMTP_SENDER_HOST \
@@ -338,12 +337,12 @@ start_periscope_db() {
     docker run -d -P \
       --name=periscopedb \
       -e "SERVICE_NAME=periscopedb" \
+      -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
       -v /var/lib/periscope/periscopedb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
     debug "waits for periscopedb get registered in consul"
     wait_for_service periscopedb
-    sleep 20
     debug "periscope db: $(dhp periscopedb) "
 }
 
@@ -352,6 +351,7 @@ start_periscope() {
     -e PERISCOPE_DB_HBM2DDL_STRATEGY=$PERISCOPE_DB_HBM2DDL_STRATEGY \
     -e PERISCOPE_DB_TCP_PORT=$(dp periscopedb) \
     -e SERVICE_NAME=periscope \
+    -e SERVICE_CHECK_HTTP=/info \
     -e PERISCOPE_DB_TCP_ADDR=$(dh periscopedb) \
     -e PERISCOPE_SMTP_HOST=$CB_SMTP_SENDER_HOST \
     -e PERISCOPE_SMTP_USERNAME=$CB_SMTP_SENDER_USERNAME \
@@ -392,39 +392,6 @@ bridge_osx() {
     BRIDGE_IP=$(docker run --rm mini/base ip ro | grep default | cut -d" " -f 3)
     sudo networksetup -setdnsservers Wi-Fi 192.168.1.1 $BRIDGE_IP 8.8.8.8
     sudo networksetup -setsearchdomains Wi-Fi service.consul node.consul
-}
-
-checkHealthOnUrl() {
-  declare url=$1
-  declare maxAttempts=10
-  declare pollTimeout=30
-
-  cat <<EOF
-========================================================
-= check service availabilty =
-= by checking the health url:
-=   $url
-=
-= maxAttempts=$maxAttempts
-========================================================
-EOF
-
-  for (( i=1; i<=$maxAttempts; i++ ))
-  do
-      echo "GET $url. Attempt #$i"
-      code=`curl -sL -w "%{http_code}\\n" "$url" -o /dev/null`
-      echo "Found code $code"
-      if [ "x$code" = "x200" ]
-      then
-           echo "Service on '"$url"' is available!"
-           break
-      elif [ $i -eq $maxAttempts ]
-      then
-           echo "Service on '"$url"' not started in time."
-           exit 1
-      fi
-      sleep $pollTimeout
-  done
 }
 
 main() {
