@@ -275,7 +275,7 @@ start_cloudbreak() {
 
     debug $desc
     wait_for_service cbdb
-    export CB_HOST_ADDR=http://$(dh consul):8080
+    export CB_HOST_ADDR=${CLOUDBREAK_PUBLIC_HOST_ADDRESS:=http://$(dh consul):8080}
     cb_envs_to_docker_options
 
     docker run -d \
