@@ -343,7 +343,6 @@ start_periscope_db() {
 
     debug "waits for periscopedb get registered in consul"
     wait_for_service periscopedb
-    sleep 20
     debug "periscope db: $(dhp periscopedb) "
 }
 
