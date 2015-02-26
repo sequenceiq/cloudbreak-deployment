@@ -24,8 +24,8 @@ BRIDGE_IP=$(boot2docker ip || (docker run --rm gliderlabs/alpine:3.1 ip ro | gre
 con() {
   declare path="$1"
   shift
-  local consul_ip=$(dig @${BRIDGE_IP} +short consul-8500.service.consul)
-  curl ${consul_ip}:8500/v1/${path} "$@"
+  local consul_ip=$(dig @${BRIDGE_IP} +short consul.service.consul)
+  curl -s ${consul_ip}:8500/v1/${path} "$@"
 }
 
 serv(){
