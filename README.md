@@ -2,6 +2,10 @@
 
 Cloubreak can be deployed on any environment with support of running Docker containers. We have automated the whole deployment process with support for `on-premise`, `AWS` and `GCP`. Please find the instructions on the appropriate folders.
 
+- [Amazon EC2](https://github.com/sequenceiq/cloudbreak-deployment/blob/master/aws/README.md)
+- [Google Cloud]()
+- [On premise]()
+
 To have a working API/UI, you need several containers.
 
 - **uaadb**: postgresql db storing UAA internals
