@@ -4,7 +4,7 @@ Cloubreak can be deployed on any environment with support of running Docker cont
 
 - [Amazon EC2](https://github.com/sequenceiq/cloudbreak-deployment/blob/master/aws/README.md)
 - [Google Cloud]()
-- [On premise]()
+- [On premise]((https://github.com/sequenceiq/cloudbreak-deployment/blob/master/local/README.md)
 
 To have a working API/UI, you need several containers.
 
