@@ -1,6 +1,6 @@
 ### Automated deployment of Cloudbreak on AWS
 
-We have automated the process of installing/deployiung Cloudbreak on Amazon EC2. In case you'd like to host Cloudbreak on AWS please follow the instructions below. In a few minutes you will have an EC2 instance started with all the components installed (Cloudbreak, Sultans, Uluwatu, UAA, PostgreSQL), started and configured.
+We have automated the process of installing/deploying Cloudbreak on Amazon EC2. In case you'd like to host Cloudbreak on AWS please follow the instructions below. In a few minutes you will have an EC2 instance started with all the components installed (Cloudbreak, Sultans, Uluwatu, UAA, PostgreSQL), started and configured.
 
 ##### Required variables for Terraform
 In order to launch the EC2 instance fill the `terraform.tfvars` with the appropriate values:
