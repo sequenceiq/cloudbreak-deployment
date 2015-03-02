@@ -311,6 +311,8 @@ start_uluwatu() {
     -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
     -e ULU_PERISCOPE_ADDRESS=http://$(dhp periscope)/ \
     -p 3000:3000 sequenceiq/uluwatu:$DOCKER_TAG_ULUWATU
+
+    wait_for_service uluwatu
 }
 
 start_sultans() {
@@ -341,9 +343,7 @@ start_periscope_db() {
       -v /var/lib/periscope/periscopedb:/var/lib/postgresql/data \
       postgres:$DOCKER_TAG_POSTGRES
 
-    debug "waits for periscopedb get registered in consul"
     wait_for_service periscopedb
-    debug "periscope db: $(dhp periscopedb) "
 }
 
 start_periscope() {
@@ -373,6 +373,8 @@ start_periscope() {
     -e ENDPOINTS_ENV_ENABLED=false \
     -p 8085:8080 \
     sequenceiq/periscope:$DOCKER_TAG_PERISCOPE
+
+    wait_for_service periscope
 }
 
 token() {
