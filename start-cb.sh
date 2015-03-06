@@ -215,7 +215,7 @@ wait_for_service() {
 start_cloudbreak_db() {
     declare desc="starts postgresql container for Cloudbreak backend"
     debug $desc
-    docker run -d -P \
+    docker run --privileged -d -P \
       --name=cbdb \
       -e "SERVICE_NAME=cbdb" \
       -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
@@ -229,7 +229,7 @@ start_uaa() {
     declare desc="starts the uaa based OAuth identity server with postgresql backend"
 
     debug $desc
-    docker run -d -P \
+    docker run --privileged -d -P \
       --name="uaadb" \
       -e "SERVICE_NAME=uaadb" \
       -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
@@ -238,7 +238,7 @@ start_uaa() {
 
     wait_for_service uaadb
 
-    docker run -d -P \
+    docker run --privileged -d -P \
       --name="uaa" \
       -e "SERVICE_NAME=uaa" \
       -e SERVICE_CHECK_HTTP=/login \
@@ -280,7 +280,7 @@ start_cloudbreak() {
     export CB_HOST_ADDR=${CLOUDBREAK_PUBLIC_HOST_ADDRESS:=http://$(dh consul):8080}
     cb_envs_to_docker_options
 
-    docker run -d \
+    docker run --privileged -d \
         --name=cloudbreak \
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_KEY=$AWS_SECRET_KEY \
@@ -299,7 +299,7 @@ start_cloudbreak() {
 }
 
 start_uluwatu() {
-    docker run -d --name uluwatu \
+    docker run --privileged -d --name uluwatu \
     -e ULU_PRODUCTION=false \
     -e SERVICE_NAME=uluwatu \
     -e SERVICE_CHECK_HTTP=/ \
@@ -318,7 +318,7 @@ start_uluwatu() {
 }
 
 start_sultans() {
-    docker run -d --name sultans \
+    docker run --privileged -d --name sultans \
     -e SL_CLIENT_ID=$UAA_SULTANS_ID \
     -e SL_CLIENT_SECRET=$UAA_SULTANS_SECRET \
     -e SERVICE_NAME=sultans \
@@ -338,7 +338,7 @@ start_sultans() {
 start_periscope_db() {
     declare desc="starts postgress container for cloudbreak backend"
     debug $desc
-    docker run -d -P \
+    docker run --privileged -d -P \
       --name=periscopedb \
       -e "SERVICE_NAME=periscopedb" \
       -e SERVICE_CHECK_CMD='psql -h 127.0.0.1 -p 5432  -U postgres -c "select 1"' \
@@ -349,7 +349,7 @@ start_periscope_db() {
 }
 
 start_periscope() {
-    docker run -d --name=periscope \
+    docker run --privileged -d --name=periscope \
     -e PERISCOPE_DB_HBM2DDL_STRATEGY=$PERISCOPE_DB_HBM2DDL_STRATEGY \
     -e PERISCOPE_DB_TCP_PORT=$(dp periscopedb) \
     -e SERVICE_NAME=periscope \
