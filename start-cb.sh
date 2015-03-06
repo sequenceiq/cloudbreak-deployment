@@ -177,6 +177,7 @@ start_consul() {
     docker run -d \
         -h node1 \
         --name=consul \
+        --privileged \
         -e SERVICE_IGNORE=true \
         -p ${BRIDGE_IP}:53:53/udp \
         -p ${BRIDGE_IP}:8400:8400 \
@@ -191,6 +192,7 @@ start_registrator() {
     debug $desc
     docker run -d \
       --name=registrator \
+      --privileged \
       -v /var/run/docker.sock:/tmp/docker.sock \
       gliderlabs/registrator:$DOCKER_TAG_REGISTRATOR consul://${BRIDGE_IP}:8500
 }
