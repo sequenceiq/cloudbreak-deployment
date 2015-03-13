@@ -10,11 +10,11 @@
 : ${DOCKER_TAG_REGISTRATOR:=v5}
 : ${DOCKER_TAG_POSTGRES:=9.4.0}
 : ${DOCKER_TAG_UAA:=1.8.1-v1}
-: ${DOCKER_TAG_CBSHELL:=0.2.38}
-: ${DOCKER_TAG_CLOUDBREAK:=0.3.65}
-: ${DOCKER_TAG_ULUWATU:=0.1.400}
+: ${DOCKER_TAG_CBSHELL:=0.2.47}
+: ${DOCKER_TAG_CLOUDBREAK:=0.3.92}
+: ${DOCKER_TAG_ULUWATU:=0.1.414}
 : ${DOCKER_TAG_SULTANS:=0.1.61}
-: ${DOCKER_TAG_PERISCOPE:=0.1.31}
+: ${DOCKER_TAG_PERISCOPE:=0.1.36}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -53,10 +53,10 @@ set_env_props() {
     export CB_BLUEPRINT_DEFAULTS="lambda-architecture,multi-node-hdfs-yarn,hdp-multinode-default"
 
     # define base images for each provider
-    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-02-17_2015-February-17_14-27-os-2015-02-17.vhd"
-    export CB_GCP_SOURCE_IMAGE_PATH="sequenceiqimage/sequenceiq-ambari17-consul-2015-02-17-1439.image.tar.gz"
-    export CB_AWS_AMI_MAP="ap-northeast-1:ami-7535d475,ap-southeast-2:ami-c33b4df9,sa-east-1:ami-d1bc02cc,ap-southeast-1:ami-4a340018,eu-west-1:ami-4d9f0a3a,us-west-1:ami-f6c8d2b3,us-west-2:ami-a92f0899,us-east-1:ami-728ade1a"
-    export CB_OPENSTACK_IMAGE="ubuntu1404_cloudbreak-v1-recipe"
+    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-03-10-centos6_2015-March-10_17-15-os-2015-03-10.vhd"
+    export CB_GCP_SOURCE_IMAGE_PATH="sequenceiqimage/sequenceiq-ambari17-consul-centos-2015-03-10-1449.image.tar.gz"
+    export CB_AWS_AMI_MAP="ap-northeast-1:ami-c528c3c5,ap-southeast-2:ami-e7c3b2dd,sa-east-1:ami-c5e55dd8,ap-southeast-1:ami-42c3f510,eu-west-1:ami-bb35a7cc,us-west-1:ami-4b20c70f,us-west-2:ami-eb1f3ddb,us-east-1:ami-00391e68"
+    export CB_OPENSTACK_IMAGE="packer-cloudbreak-centos-2015-03-11"
 
     # cloudbreak DB config
     #export CB_DB_ENV_USER="postgres"
@@ -312,7 +312,7 @@ start_uluwatu() {
     -e ULU_HOST_ADDRESS=$HOST_ADDRESS:3000 \
     -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
     -e ULU_PERISCOPE_ADDRESS=http://$(dhp periscope)/ \
-    -p 3000:3000 sequenceiq/uluwatu:$DOCKER_TAG_ULUWATU
+    -p 3000:3000 sequenceiq/uluwatu-bin:$DOCKER_TAG_ULUWATU
 
     wait_for_service uluwatu
 }
