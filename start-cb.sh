@@ -15,6 +15,7 @@
 : ${DOCKER_TAG_ULUWATU:=0.1.415}
 : ${DOCKER_TAG_SULTANS:=0.1.61}
 : ${DOCKER_TAG_PERISCOPE:=0.1.36}
+: ${CB_DEV_MODE:=false}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -406,11 +407,13 @@ main() {
   start_registrator
   start_uaa
   start_cloudbreak_db
-  start_cloudbreak
-  start_periscope_db
-  start_periscope
-  start_sultans
-  start_uluwatu
+  if [ "$CB_DEV_MODE" != true ]; then
+      start_cloudbreak
+      start_periscope_db
+      start_periscope
+      start_sultans
+      start_uluwatu
+  fi
 }
 
 [[ "$BASH_SOURCE" == "$0" ]] && main "$@"
