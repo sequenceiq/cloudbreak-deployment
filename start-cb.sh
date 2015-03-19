@@ -291,6 +291,14 @@ start_cloudbreak() {
         -e CB_DB_PORT_5432_TCP_PORT=$(dp cbdb) \
         -e CB_CLIENT_ID=$UAA_CLOUDBREAK_ID \
         -e CB_CLIENT_SECRET=$UAA_CLOUDBREAK_SECRET \
+        -e ENDPOINTS_AUTOCONFIG_ENABLED=false \
+        -e ENDPOINTS_DUMP_ENABLED=false \
+        -e ENDPOINTS_TRACE_ENABLED=false \
+        -e ENDPOINTS_CONFIGPROPS_ENABLED=false \
+        -e ENDPOINTS_METRICS_ENABLED=false \
+        -e ENDPOINTS_MAPPINGS_ENABLED=false \
+        -e ENDPOINTS_BEANS_ENABLED=false \
+        -e ENDPOINTS_ENV_ENABLED=false \
         $DOCKER_CB_ENVS \
         -p 8080:8080 \
         sequenceiq/cloudbreak:$DOCKER_TAG_CLOUDBREAK bash
