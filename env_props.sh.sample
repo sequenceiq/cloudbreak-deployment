@@ -17,7 +17,7 @@ export CB_SMTP_SENDER_PORT=
 export CB_SMTP_SENDER_FROM=
 
 # Ambari docker tag
-export CB_AMBARI_DOCKER_TAG="1.7.0-consul"
+export CB_AMBARI_DOCKER_TAG=
 
 # AWS related (optional) settings - not setting them causes AWS related operations to fail
 export AWS_ACCESS_KEY_ID=
@@ -28,3 +28,15 @@ export UAA_DEFAULT_USER_EMAIL=
 export UAA_DEFAULT_USER_PW=
 export UAA_DEFAULT_USER_FIRSTNAME=
 export UAA_DEFAULT_USER_LASTNAME=
+
+# Skipping components
+# export SKIP_UAA=true
+# export SKIP_CLOUDBREAK_DB=true
+# export SKIP_CLOUDBREAK=true
+# export SKIP_PERISCOPE_DB=true
+# export SKIP_PERISCOPE=true
+# export SKIP_SULTANS=true
+# export SKIP_ULUWATU=true
+
+# Working directory
+# export HOME_WORK_DIR="prj/"

@@ -2,8 +2,7 @@
 
 [[ "$TRACE" ]] && set -x
 
-: ${DEBUG:=1}
-: ${HOST_ADDRESS:=http://localhost}
+: ${CB_DEBUG:=1}
 
 : ${DOCKER_TAG_ALPINE:=3.1}
 : ${DOCKER_TAG_CONSUL:=v0.5.0-v3}
@@ -13,9 +12,9 @@
 : ${DOCKER_TAG_CBSHELL:=0.2.47}
 : ${DOCKER_TAG_CLOUDBREAK:=0.3.92}
 : ${DOCKER_TAG_ULUWATU:=0.1.415}
-: ${DOCKER_TAG_SULTANS:=0.1.61}
+: ${DOCKER_TAG_SULTANS:=0.1.62}
 : ${DOCKER_TAG_PERISCOPE:=0.1.36}
-: ${CB_DEV_MODE:=false}
+: ${HOME_WORK_DIR:="prj/"}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -273,12 +272,33 @@ cb_envs_to_docker_options() {
   done
 }
 
+cloudbreak_extra_props() {
+  export CB_HOST_ADDR=${CB_PUBLIC_HOST_ADDRESS:=http://$(dh consul):8080}
+  export CB_IDENTITY_SERVER_URL=http://$(dhp uaa)
+  export CB_DB_PORT_5432_TCP_ADDR=$(dh cbdb)
+  export CB_DB_PORT_5432_TCP_PORT=$(dp cbdb)
+  export CB_CLIENT_ID=$UAA_CLOUDBREAK_ID
+  export CB_CLIENT_SECRET=$UAA_CLOUDBREAK_SECRET
+  for p in "${!CB_@}"; do
+    echo $p=${!p}
+  done > cb_settings
+}
+
+run() {
+  local function_name=${1:?"usage: <function_name>"}
+  local skip=$2
+  if [ -z "$skip" ]; then
+    $function_name
+  else
+    echo "Skipping $function_name ..."
+  fi;
+}
+
 start_cloudbreak() {
     declare desc="starts cloudbreak component"
 
     debug $desc
     wait_for_service cbdb
-    export CB_HOST_ADDR=${CLOUDBREAK_PUBLIC_HOST_ADDRESS:=http://$(dh consul):8080}
     cb_envs_to_docker_options
 
     docker run --privileged -d \
@@ -300,11 +320,13 @@ start_cloudbreak() {
 }
 
 start_uluwatu() {
+
+    # -e ULU_CLOUDBREAK_ADDRESS=http://$(dhp cloudbreak) \
     docker run --privileged -d --name uluwatu \
     -e ULU_PRODUCTION=false \
     -e SERVICE_NAME=uluwatu \
     -e SERVICE_CHECK_HTTP=/ \
-    -e ULU_CLOUDBREAK_ADDRESS=http://$(dhp cloudbreak) \
+    -e ULU_CLOUDBREAK_ADDRESS=$CB_PUBLIC_HOST_ADDRESS \
     -e ULU_OAUTH_REDIRECT_URI=$HOST_ADDRESS:3000/authorize \
     -e ULU_IDENTITY_ADDRESS=http://$(dhp uaa)/ \
     -e ULU_SULTANS_ADDRESS=$HOST_ADDRESS:3001 \
@@ -313,13 +335,15 @@ start_uluwatu() {
     -e ULU_HOST_ADDRESS=$HOST_ADDRESS:3000 \
     -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
     -e ULU_PERISCOPE_ADDRESS=http://$(dhp periscope)/ \
+    -v $HOME/$HOME_WORK_DIR/uluwatu:/uluwatu/ \
     -p 3000:3000 sequenceiq/uluwatu-bin:$DOCKER_TAG_ULUWATU
 
     wait_for_service uluwatu
 }
 
 start_sultans() {
-    docker run --privileged -d --name sultans \
+
+    docker run -d --name sultans \
     -e SL_CLIENT_ID=$UAA_SULTANS_ID \
     -e SL_CLIENT_SECRET=$UAA_SULTANS_SECRET \
     -e SERVICE_NAME=sultans \
@@ -333,7 +357,8 @@ start_sultans() {
     -e SL_SMTP_SENDER_FROM=$CB_SMTP_SENDER_FROM \
     -e SL_CB_ADDRESS=$HOST_ADDRESS:3000 \
     -e SL_ADDRESS=$HOST_ADDRESS:3001 \
-    -p 3001:3000 sequenceiq/sultans:$DOCKER_TAG_SULTANS
+    -v $HOME/prj/sultans:/sultans/ \
+    -p 3001:3000 sequenceiq/sultans-bin:$DOCKER_TAG_SULTANS
 }
 
 start_periscope_db() {
@@ -405,15 +430,16 @@ main() {
   prepare_uaa_config
   start_consul
   start_registrator
-  start_uaa
-  start_cloudbreak_db
-  if [ "$CB_DEV_MODE" != true ]; then
-      start_cloudbreak
-      start_periscope_db
-      start_periscope
-      start_sultans
-      start_uluwatu
-  fi
+  run start_uaa $SKIP_UAA
+  run start_cloudbreak_db $SKIP_CLOUDBREAK_DB
+
+  cloudbreak_extra_props
+
+  run start_cloudbreak $SKIP_CLOUDBREAK
+  run start_periscope_db $SKIP_PERISCOPE_DB
+  run start_periscope $SKIP_PERISCOPE
+  run start_sultans $SKIP_SULTANS
+  run start_uluwatu $SKIP_ULUWATU
 }
 
 [[ "$BASH_SOURCE" == "$0" ]] && main "$@"
