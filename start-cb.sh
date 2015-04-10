@@ -10,10 +10,10 @@
 : ${DOCKER_TAG_REGISTRATOR:=v5}
 : ${DOCKER_TAG_POSTGRES:=9.4.0}
 : ${DOCKER_TAG_UAA:=1.8.1-v1}
-: ${DOCKER_TAG_CBSHELL:=0.2.47}
-: ${DOCKER_TAG_CLOUDBREAK:=0.3.92}
-: ${DOCKER_TAG_ULUWATU:=0.1.415}
-: ${DOCKER_TAG_SULTANS:=0.1.61}
+: ${DOCKER_TAG_CBSHELL:=0.4.1}
+: ${DOCKER_TAG_CLOUDBREAK:=0.4.8}
+: ${DOCKER_TAG_ULUWATU:=0.4.5}
+: ${DOCKER_TAG_SULTANS:=0.4.3}
 : ${DOCKER_TAG_PERISCOPE:=0.1.36}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
@@ -53,10 +53,10 @@ set_env_props() {
     export CB_BLUEPRINT_DEFAULTS="lambda-architecture,multi-node-hdfs-yarn,hdp-multinode-default"
 
     # define base images for each provider
-    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-03-10-centos6_2015-March-10_17-15-os-2015-03-10.vhd"
-    export CB_GCP_SOURCE_IMAGE_PATH="sequenceiqimage/sequenceiq-ambari17-consul-centos-2015-03-10-1449.image.tar.gz"
-    export CB_AWS_AMI_MAP="ap-northeast-1:ami-c528c3c5,ap-southeast-2:ami-e7c3b2dd,sa-east-1:ami-c5e55dd8,ap-southeast-1:ami-42c3f510,eu-west-1:ami-bb35a7cc,us-west-1:ami-4b20c70f,us-west-2:ami-eb1f3ddb,us-east-1:ami-00391e68"
-    export CB_OPENSTACK_IMAGE="packer-cloudbreak-centos-2015-03-11"
+    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-04-02-centos6-reset_2015-April-2_13-36-os-2015-04-02.vhd"
+    export CB_GCP_SOURCE_IMAGE_PATH="sequenceiqimage/zeppelin-30gb-centos6-demo"
+    export CB_AWS_AMI_MAP="ap-northeast-1:ami-62708962,ap-southeast-1:ami-a44270f6,sa-east-1:ami-c746fcda,us-west-1:ami-076a8943,ap-southeast-2:ami-1baddf21,us-east-1:ami-3297ab5a,us-west-2:ami-f75279c7,eu-west-1:ami-8596f1f2"
+    export CB_OPENSTACK_IMAGE="cloudbreak-centos-amb17-2015-04-02"
 
     # cloudbreak DB config
     #export CB_DB_ENV_USER="postgres"
