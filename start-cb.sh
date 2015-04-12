@@ -13,7 +13,7 @@
 : ${DOCKER_TAG_CBSHELL:=0.4.1}
 : ${DOCKER_TAG_CLOUDBREAK:=0.4.8}
 : ${DOCKER_TAG_ULUWATU:=0.4.5}
-: ${DOCKER_TAG_SULTANS:=0.4.3}
+: ${DOCKER_TAG_SULTANS:=0.1.67}
 : ${DOCKER_TAG_PERISCOPE:=0.1.36}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
@@ -53,10 +53,10 @@ set_env_props() {
     export CB_BLUEPRINT_DEFAULTS="lambda-architecture,multi-node-hdfs-yarn,hdp-multinode-default"
 
     # define base images for each provider
-    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-04-02-centos6-reset_2015-April-2_13-36-os-2015-04-02.vhd"
+    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/cloudbreak-centos-amb200p-2015-04-11_2015-April-11_20-32-os-2015-04-11.vhd"
     export CB_GCP_SOURCE_IMAGE_PATH="sequenceiqimage/zeppelin-30gb-centos6-demo"
-    export CB_AWS_AMI_MAP="ap-northeast-1:ami-62708962,ap-southeast-1:ami-a44270f6,sa-east-1:ami-c746fcda,us-west-1:ami-076a8943,ap-southeast-2:ami-1baddf21,us-east-1:ami-3297ab5a,us-west-2:ami-f75279c7,eu-west-1:ami-8596f1f2"
-    export CB_OPENSTACK_IMAGE="cloudbreak-centos-amb17-2015-04-02"
+    export CB_AWS_AMI_MAP="us-east-1:ami-80d1efe8,ap-southeast-1:ami-480a381a,eu-west-1:ami-ad5f39da,ap-southeast-2:ami-51e0926b,us-west-1:ami-d7b45693,sa-east-1:ami-fd17ade0,ap-northeast-1:ami-4241b942,us-west-2:ami-05d5fe35"
+    export CB_OPENSTACK_IMAGE="sequenceiqimage/zeppelin-30gb-centos6-demo"
 
     # cloudbreak DB config
     #export CB_DB_ENV_USER="postgres"
