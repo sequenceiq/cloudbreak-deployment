@@ -15,6 +15,7 @@
 : ${DOCKER_TAG_ULUWATU:=ambari2}
 : ${DOCKER_TAG_SULTANS:=0.4.2}
 : ${DOCKER_TAG_PERISCOPE:=0.1.39}
+: ${CB_AMBARI_DOCKER_TAG:=2.0.0-consul-zeppelin}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -299,6 +300,7 @@ start_cloudbreak() {
         -e ENDPOINTS_MAPPINGS_ENABLED=false \
         -e ENDPOINTS_BEANS_ENABLED=false \
         -e ENDPOINTS_ENV_ENABLED=false \
+        -e CB_AMBARI_DOCKER_TAG=$CB_AMBARI_DOCKER_TAG \
         $DOCKER_CB_ENVS \
         -p 8080:8080 \
         sequenceiq/cloudbreak:$DOCKER_TAG_CLOUDBREAK bash
