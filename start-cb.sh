@@ -11,10 +11,10 @@
 : ${DOCKER_TAG_POSTGRES:=9.4.0}
 : ${DOCKER_TAG_UAA:=1.8.1-v1}
 : ${DOCKER_TAG_CBSHELL:=0.4.1}
-: ${DOCKER_TAG_CLOUDBREAK:=0.4.8}
-: ${DOCKER_TAG_ULUWATU:=0.4.5}
-: ${DOCKER_TAG_SULTANS:=0.1.67}
-: ${DOCKER_TAG_PERISCOPE:=0.1.36}
+: ${DOCKER_TAG_CLOUDBREAK:=custom}
+: ${DOCKER_TAG_ULUWATU:=ambari2}
+: ${DOCKER_TAG_SULTANS:=0.4.2}
+: ${DOCKER_TAG_PERISCOPE:=0.1.39}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -33,7 +33,7 @@ serv(){
   con catalog/$path -s |jq .
 }
 
-# dig service host ip
+# dig service host ipuluw
 dh() {
   dig @${BRIDGE_IP} +short $1.service.consul
 }
@@ -340,7 +340,7 @@ start_sultans() {
     -e SL_SMTP_SENDER_FROM=$CB_SMTP_SENDER_FROM \
     -e SL_CB_ADDRESS=$HOST_ADDRESS:3000 \
     -e SL_ADDRESS=$HOST_ADDRESS:3001 \
-    -p 3001:3000 sequenceiq/sultans:$DOCKER_TAG_SULTANS
+    -p 3001:3000 sequenceiq/sultans-bin:$DOCKER_TAG_SULTANS
 }
 
 start_periscope_db() {
