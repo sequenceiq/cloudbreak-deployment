@@ -15,7 +15,7 @@
 : ${DOCKER_TAG_ULUWATU:=ambari2}
 : ${DOCKER_TAG_SULTANS:=0.4.2}
 : ${DOCKER_TAG_PERISCOPE:=0.1.39}
-: ${CB_AMBARI_DOCKER_TAG:=2.0.0-consul-zeppelin}
+: ${CB_AMBARI_DOCKER_TAG:=2.0.0-consul}
 debug() {
     [[ "$DEBUG" ]] && echo "[DEBUG] $*" 1>&2
 }
@@ -54,7 +54,7 @@ set_env_props() {
     export CB_BLUEPRINT_DEFAULTS="lambda-architecture,multi-node-hdfs-yarn,hdp-multinode-default"
 
     # define base images for each provider
-    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-04-14-centos6-amb2_2015-April-14_22-5-os-2015-04-14.vhd"
+    export CB_AZURE_IMAGE_URI="https://102589fae040d8westeurope.blob.core.windows.net/images/packer-cloudbreak-2015-04-22_2015-April-22_13-50-os-2015-04-22.vhd"
     export CB_GCP_SOURCE_IMAGE_PATH="packer-cloudbreak-2015-04-15-centos6-amb2f"
     export CB_AWS_AMI_MAP="ap-southeast-2:ami-c92558f3,us-east-1:ami-50744f38,us-west-2:ami-9f1b31af,sa-east-1:ami-53f5704e,eu-west-1:ami-0bbfde7c,us-west-1:ami-69d4362d,ap-northeast-1:ami-e2d329e2,ap-southeast-1:ami-48a5971a"
     export CB_OPENSTACK_IMAGE="sequenceiqimage/zeppelin-30gb-centos6-demo"
